@@ -124,19 +124,21 @@ func TestSampleFirstDifference(t *testing.T) {
 
 func TestSampleDFT(t *testing.T) {
 
-	expected := DFT{
+	expected, err := NewDFT(
 		testSamples[outputDftRex],
-		testSamples[outputDftImx],
-		len(testSamples[input15khzSignal]),
+		testSamples[outputDftImx])
+
+	if err != nil {
+		t.Error("creating dft: ", err.Error())
 	}
 
-	actual := testSamples[input15khzSignal].DFT()
+	actual, err := testSamples[input15khzSignal].DFT()
 
-	if !actual.Rex.Equals(expected.Rex) {
-		t.Error("expected ", expected, " actual ", actual)
+	if err != nil {
+		t.Error("generating dft: ", err.Error())
 	}
 
-	if !actual.Imx.Equals(expected.Imx) {
+	if !actual.Equals(expected) {
 		t.Error("expected ", expected, " actual ", actual)
 	}
 }
@@ -145,7 +147,11 @@ func TestSampleMagnitude(t *testing.T) {
 
 	expected := testSamples[output15khzMagnitude]
 
-	dft := testSamples[input15khzSignal].DFT()
+	dft, err := testSamples[input15khzSignal].DFT()
+
+	if err != nil {
+		t.Error("unable to generate dft ", err.Error())
+	}
 
 	actual := dft.Magnitude()
 
@@ -158,7 +164,11 @@ func TestSampleInverse(t *testing.T) {
 
 	expected := testSamples[outputIdft]
 
-	dft := testSamples[input15khzSignal].DFT()
+	dft, err := testSamples[input15khzSignal].DFT()
+
+	if err != nil {
+		t.Error("generating dft: ", err.Error())
+	}
 
 	actual := dft.Inverse()
 
@@ -169,21 +179,27 @@ func TestSampleInverse(t *testing.T) {
 
 func TestDFTPolar(t *testing.T) {
 
-	expected := DFT{
+	expected, err := NewDFT(
 		testSamples[outputDftRex],
-		testSamples[outputDftImx],
-		len(testSamples[input15khzSignal]),
+		testSamples[outputDftImx])
+
+	if err != nil {
+		t.Error("creating dft: ", err.Error())
 	}
 
-	dft := testSamples[input15khzSignal].DFT()
+	dft, err := testSamples[input15khzSignal].DFT()
 
-	actual := dft.Polar()
-
-	if !actual.Rex.Equals(expected.Rex) {
-		t.Error("expected ", expected.Rex, " actual ", actual.Rex)
+	if err != nil {
+		t.Error("generating dft: ", err.Error())
 	}
 
-	if !actual.Imx.Equals(expected.Imx) {
-		t.Error("expected ", expected.Imx, " actual ", actual.Imx)
+	actual, err := dft.Polar()
+
+	if err != nil {
+		t.Error("generating polar dft: ", err.Error())
+	}
+
+	if !actual.Equals(expected) {
+		t.Error("expected ", expected, " actual ", actual)
 	}
 }
