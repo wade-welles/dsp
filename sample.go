@@ -1,11 +1,44 @@
 package dsp
 
 import (
+	"bufio"
 	"math"
+	"os"
+	"strconv"
 )
 
 // Sample a time sliced array of signals
 type Sample []Signal
+
+// LoadSample loads a sample from a file
+func LoadSample(fileName string) (Sample, error) {
+
+	file, err := os.Open(fileName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	sample := Sample{}
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		sig, err := strconv.ParseFloat(scanner.Text(), 64)
+
+		if err != nil {
+			return sample, err
+		}
+
+		sample = append(sample, Signal(sig))
+	}
+
+	err = scanner.Err()
+
+	return sample, err
+}
 
 // AlmostEquals compares samples with a specified tolerance
 func (s Sample) AlmostEquals(other Sample, tolerance float64) bool {
@@ -110,5 +143,5 @@ func (s Sample) DFT() DFT {
 		}
 	}
 
-	return DFT{rex, imx}
+	return DFT{rex, imx, size}
 }
