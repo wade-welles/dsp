@@ -5,4 +5,4 @@ digital signal processing kata
 
 [Gnuplot](http://www.gnuplot.info/) can be used to visualize data files
 
-
+![Input Signal](testdata/input_signal.png)
