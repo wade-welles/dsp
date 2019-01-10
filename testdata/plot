@@ -1,0 +1,20 @@
+#!/usr/bin/env gnuplot
+
+
+set origin 0,0
+
+plot 'input_15khz_signal.dat' with lines lc rgb 'black'
+
+pause 3
+
+plot 'output_dft_rex.dat' with lines lc rgb 'green'
+
+pause 3
+
+plot 'output_dft_imx.dat' with lines lc rgb 'blue'
+
+pause 3
+
+plot 'output_magnitude.dat' with lines lc rgb 'red'
+
+pause -1
