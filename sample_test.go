@@ -12,7 +12,6 @@ const (
 	input15khzSignal      = "input_15khz_signal.dat"
 	input20khzImx         = "input_20khz_imx.dat"
 	input20khzRex         = "input_20khz_rex.dat"
-	input20khzSignal      = "input_20khz_signal.dat"
 	inputEcgImx           = "input_ecg_imx.dat"
 	inputEcgRex           = "input_ecg_rex.dat"
 	inputEcgSignal        = "input_ecg_signal.dat"
@@ -27,6 +26,8 @@ const (
 	outputIdftImx         = "output_idft_imx.dat"
 	outputIdftRex         = "output_idft_rex.dat"
 	output15khzImx        = "output_imx.dat"
+	outputComplexImx      = "output_complex_imx.dat"
+	outputComplexRex      = "output_complex_rex.dat"
 	output15khzPhase      = "output_phase.dat"
 	output15khzRex        = "output_rex.dat"
 	outputRunningSum      = "output_running_sum.dat"
@@ -48,7 +49,6 @@ var testSamples = map[string]Sample{
 	input15khzSignal:      loadTestFile(input15khzSignal),
 	input20khzImx:         loadTestFile(input20khzImx),
 	input20khzRex:         loadTestFile(input20khzRex),
-	input20khzSignal:      loadTestFile(input20khzSignal),
 	inputEcgImx:           loadTestFile(inputEcgImx),
 	inputEcgRex:           loadTestFile(inputEcgRex),
 	inputEcgSignal:        loadTestFile(inputEcgSignal),
@@ -66,6 +66,8 @@ var testSamples = map[string]Sample{
 	output15khzPhase:      loadTestFile(output15khzPhase),
 	output15khzRex:        loadTestFile(output15khzRex),
 	outputRunningSum:      loadTestFile(outputRunningSum),
+	outputComplexImx:      loadTestFile(outputComplexImx),
+	outputComplexRex:      loadTestFile(outputComplexRex),
 }
 
 func TestSampleMean(t *testing.T) {
@@ -197,6 +199,34 @@ func TestDFTPolar(t *testing.T) {
 
 	if err != nil {
 		t.Error("generating polar dft: ", err.Error())
+	}
+
+	if !actual.Equals(expected) {
+		t.Error("expected ", expected, " actual ", actual)
+	}
+}
+
+func TestDFTComplex(t *testing.T) {
+
+	expected, err := NewDFT(
+		testSamples[outputComplexRex],
+		testSamples[outputComplexImx])
+
+	if err != nil {
+		t.Error("creating dft: ", err.Error())
+	}
+
+	dft, err := NewDFT(testSamples[input20khzRex],
+		testSamples[input20khzImx])
+
+	if err != nil {
+		t.Error("generating dft: ", err.Error())
+	}
+
+	actual, err := dft.Complex()
+
+	if err != nil {
+		t.Error("generating complex dft: ", err.Error())
 	}
 
 	if !actual.Equals(expected) {

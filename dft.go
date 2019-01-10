@@ -6,7 +6,7 @@ import (
 )
 
 // DFT Discrete Fourier Transform
-type dft struct {
+type DFT struct {
 	rex Sample
 	imx Sample
 }
@@ -14,45 +14,46 @@ type dft struct {
 const pi2 = math.Pi * 2
 
 // NewDFT Initializes a new DFT
-func NewDFT(rex Sample, imx Sample) (*dft, error) {
+func NewDFT(rex Sample, imx Sample) (*DFT, error) {
 
 	if len(rex) != len(imx) {
 		return nil, errors.New("invalid argument")
 	}
 
-	return &dft{rex, imx}, nil
+	return &DFT{rex, imx}, nil
 }
 
 // Equals compares two DFT instances
-func (dft *dft) Equals(other *dft) bool {
+func (dft *DFT) Equals(other *DFT) bool {
 	return dft.rex.Equals(other.rex) && dft.imx.Equals(other.imx)
 }
 
-func (dft *dft) length() int {
+func (dft *DFT) length() int {
 	return len(dft.rex)
 }
 
-func (dft *dft) size() int {
+func (dft *DFT) size() int {
 	return dft.length() * 2
 }
 
 // Magnitude returns the magnitude of the samples
-func (dft *dft) Magnitude() Sample {
+func (dft *DFT) Magnitude() Sample {
 
 	len := dft.length()
 
 	output := make(Sample, len)
 
 	for i := 0; i < len; i++ {
-		val := math.Sqrt(math.Pow(float64(dft.rex[i]), 2) + math.Pow(float64(dft.imx[i]), 2))
-		output[i] = Signal(val)
+		rex := math.Pow(float64(dft.rex[i]), 2)
+		imx := math.Pow(float64(dft.imx[i]), 2)
+		output[i] = Signal(math.Sqrt(rex * imx))
 	}
 
 	return output
 }
 
 // Inverse return the inverse sample of the discrete fourier transform
-func (dft *dft) Inverse() Sample {
+func (dft *DFT) Inverse() Sample {
 
 	length := dft.length()
 	size := dft.size()
@@ -70,9 +71,9 @@ func (dft *dft) Inverse() Sample {
 
 	for i := 0; i < size; i++ {
 		for j := 0; j < length; j++ {
-			val := float64(i * j)
-			output[i] += dft.rex[j] * Signal(math.Cos(pi2*val/fsize))
-			output[i] += dft.imx[j] * Signal(math.Sin(pi2*val/fsize))
+			k := float64(i * j)
+			output[i] += dft.rex[j] * Signal(math.Cos(pi2*k/fsize))
+			output[i] += dft.imx[j] * Signal(math.Sin(pi2*k/fsize))
 		}
 	}
 
@@ -80,7 +81,7 @@ func (dft *dft) Inverse() Sample {
 }
 
 // Polar converts from Rect to Polar
-func (dft *dft) Polar() (*dft, error) {
+func (dft *DFT) Polar() (*DFT, error) {
 
 	len := dft.length()
 
@@ -89,11 +90,14 @@ func (dft *dft) Polar() (*dft, error) {
 
 	for i := 0; i < len; i++ {
 
-		mag[i] = Signal(math.Sqrt(math.Pow(float64(dft.rex[i]), 2) + math.Pow(float64(dft.imx[i]), 2)))
+		rex := float64(dft.rex[i])
+		imx := float64(dft.imx[i])
+
+		mag[i] = Signal(math.Sqrt(math.Pow(rex, 2) + math.Pow(imx, 2)))
 
 		if dft.rex[i].Equals(0) {
 			dft.rex[i] = Signal(math.Pow(10, -20))
-			phase[i] = Signal(math.Atan(float64(dft.imx[i]) / float64(dft.rex[i])))
+			phase[i] = Signal(math.Atan(imx / rex))
 		}
 
 		if dft.rex[i] < 0 && dft.imx[i] < 0 {
@@ -105,4 +109,27 @@ func (dft *dft) Polar() (*dft, error) {
 	}
 
 	return NewDFT(mag, phase)
+}
+
+// Complex converts the dft to frequency domain
+func (dft *DFT) Complex() (*DFT, error) {
+
+	len := dft.length()
+
+	freqRex := make(Sample, len)
+	freqImx := make(Sample, len)
+
+	for i := 0; i < len; i++ {
+		for j := 0; j < len; j++ {
+			rex := float64(dft.rex[i])
+			imx := float64(dft.imx[i])
+			k := float64(i * j)
+			sr := math.Cos(pi2 * k / float64(len))
+			si := -math.Sin(pi2 * k / float64(len))
+
+			freqRex[i] += Signal(rex*sr - imx*si)
+			freqImx[i] += Signal(imx*si - imx*sr)
+		}
+	}
+	return NewDFT(freqRex, freqImx)
 }

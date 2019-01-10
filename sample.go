@@ -128,7 +128,7 @@ func (s Sample) FirstDifference() Sample {
 }
 
 // DFT returns the discrete fourier transform of the sample
-func (s Sample) DFT() (*dft, error) {
+func (s Sample) DFT() (*DFT, error) {
 
 	size := len(s)
 	halfSize := (size / 2)
