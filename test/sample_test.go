@@ -3,12 +3,12 @@ package dsp
 import (
 	"fmt"
 	"testing"
+
+	"micrantha.com/dsp/pkg"
 )
 
 const (
 	impulseResponse       = "impulse_response.dat"
-	input15khzImx         = "input_15khz_imx.dat"
-	input15khzRex         = "input_15khz_rex.dat"
 	input15khzSignal      = "input_15khz_signal.dat"
 	input20khzImx         = "input_20khz_imx.dat"
 	input20khzRex         = "input_20khz_rex.dat"
@@ -33,19 +33,17 @@ const (
 	outputRunningSum      = "output_running_sum.dat"
 )
 
-func loadTestFile(filename string) Sample {
+func loadTestFile(filename string) dsp.Sample {
 
-	val, err := LoadSample(fmt.Sprintf("testdata/%s", filename))
+	val, err := dsp.LoadSample(fmt.Sprintf("data/%s", filename))
 	if err != nil {
 		panic(fmt.Sprintf("unable to parse %s: %v", filename, err))
 	}
 	return val
 }
 
-var testSamples = map[string]Sample{
+var testSamples = map[string]dsp.Sample{
 	impulseResponse:       loadTestFile(impulseResponse),
-	input15khzImx:         loadTestFile(input15khzImx),
-	input15khzRex:         loadTestFile(input15khzRex),
 	input15khzSignal:      loadTestFile(input15khzSignal),
 	input20khzImx:         loadTestFile(input20khzImx),
 	input20khzRex:         loadTestFile(input20khzRex),
@@ -72,7 +70,7 @@ var testSamples = map[string]Sample{
 
 func TestSampleMean(t *testing.T) {
 
-	expected := Signal(0.037112)
+	expected := dsp.Signal(0.037112)
 
 	actual := testSamples[input15khzSignal].Mean()
 
@@ -82,7 +80,7 @@ func TestSampleMean(t *testing.T) {
 }
 
 func TestSampleDeviation(t *testing.T) {
-	expected := Signal(0.787502)
+	expected := dsp.Signal(0.787502)
 
 	actual := testSamples[input15khzSignal].Deviation()
 
@@ -121,12 +119,11 @@ func TestSampleFirstDifference(t *testing.T) {
 	if !actual.Equals(expected) {
 		t.Error("expected ", expected, " actual ", actual)
 	}
-
 }
 
 func TestSampleDFT(t *testing.T) {
 
-	expected, err := NewDFT(
+	expected, err := dsp.NewDFT(
 		testSamples[outputDftRex],
 		testSamples[outputDftImx])
 
@@ -138,95 +135,6 @@ func TestSampleDFT(t *testing.T) {
 
 	if err != nil {
 		t.Error("generating dft: ", err.Error())
-	}
-
-	if !actual.Equals(expected) {
-		t.Error("expected ", expected, " actual ", actual)
-	}
-}
-
-func TestSampleMagnitude(t *testing.T) {
-
-	expected := testSamples[output15khzMagnitude]
-
-	dft, err := testSamples[input15khzSignal].DFT()
-
-	if err != nil {
-		t.Error("unable to generate dft ", err.Error())
-	}
-
-	actual := dft.Magnitude()
-
-	if !actual.Equals(expected) {
-		t.Error("expected ", expected, " actual ", actual)
-	}
-}
-
-func TestSampleInverse(t *testing.T) {
-
-	expected := testSamples[outputIdft]
-
-	dft, err := testSamples[input15khzSignal].DFT()
-
-	if err != nil {
-		t.Error("generating dft: ", err.Error())
-	}
-
-	actual := dft.Inverse()
-
-	if !actual.Equals(expected) {
-		t.Error("expected ", expected, " actual ", actual)
-	}
-}
-
-func TestDFTPolar(t *testing.T) {
-
-	expected, err := NewDFT(
-		testSamples[outputDftRex],
-		testSamples[outputDftImx])
-
-	if err != nil {
-		t.Error("creating dft: ", err.Error())
-	}
-
-	dft, err := testSamples[input15khzSignal].DFT()
-
-	if err != nil {
-		t.Error("generating dft: ", err.Error())
-	}
-
-	actual, err := dft.Polar()
-
-	if err != nil {
-		t.Error("generating polar dft: ", err.Error())
-	}
-
-	if !actual.Equals(expected) {
-		t.Error("expected ", expected, " actual ", actual)
-	}
-}
-
-func TestDFTComplex(t *testing.T) {
-
-	expected, err := NewDFT(
-		testSamples[outputComplexRex],
-		testSamples[outputComplexImx])
-
-	if err != nil {
-		t.Error("creating dft: ", err.Error())
-	}
-
-	dft, err := NewDFT(testSamples[input20khzRex],
-		testSamples[input20khzImx])
-
-	if err != nil {
-		t.Error("generating dft: ", err.Error())
-	}
-
-	actual, err := dft.Complex()
-
-	if err != nil {
-		t.Error("generating complex dft: ", err.Error())
 	}
 
 	if !actual.Equals(expected) {

@@ -1,12 +1,15 @@
 package dsp
 
-import "testing"
+import (
+	"micrantha.com/dsp/pkg"
+	"testing"
+)
 
 func TestSignalDeviation(t *testing.T) {
 
-	expected := Signal(5)
+	expected := dsp.Signal(5)
 
-	signal := Signal(25)
+	signal := dsp.Signal(25)
 
 	actual := signal.Deviation()
 
