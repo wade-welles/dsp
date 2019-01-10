@@ -138,8 +138,8 @@ func (s Sample) DFT() (*DFT, error) {
 
 	for i := 0; i < halfSize; i++ {
 		for j, val := range s {
-			rex[i] += val * Signal(math.Cos(float64(2*i*j)*math.Pi/float64(size)))
-			imx[i] -= val * Signal(math.Sin(float64(2*i*j)*math.Pi/float64(size)))
+			rex[i] += val * Signal(math.Cos(float64(i*j)*pi2/float64(size)))
+			imx[i] -= val * Signal(math.Sin(float64(i*j)*pi2/float64(size)))
 		}
 	}
 

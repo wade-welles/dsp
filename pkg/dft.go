@@ -39,13 +39,15 @@ func (dft *DFT) size() int {
 // Magnitude returns the magnitude of the samples
 func (dft *DFT) Magnitude() Sample {
 
+	var rex, imx float64
+
 	len := dft.length()
 
 	output := make(Sample, len)
 
 	for i := 0; i < len; i++ {
-		rex := math.Pow(float64(dft.rex[i]), 2)
-		imx := math.Pow(float64(dft.imx[i]), 2)
+		rex = math.Pow(float64(dft.rex[i]), 2)
+		imx = math.Pow(float64(dft.imx[i]), 2)
 		output[i] = Signal(math.Sqrt(rex * imx))
 	}
 
@@ -71,9 +73,8 @@ func (dft *DFT) Inverse() Sample {
 
 	for i := 0; i < size; i++ {
 		for j := 0; j < length; j++ {
-			k := float64(i * j)
-			output[i] += dft.rex[j] * Signal(math.Cos(pi2*k/fsize))
-			output[i] += dft.imx[j] * Signal(math.Sin(pi2*k/fsize))
+			output[i] += dft.rex[j] * Signal(math.Cos(float64(i*j)*pi2/fsize))
+			output[i] += dft.imx[j] * Signal(math.Sin(float64(i*j)*pi2/fsize))
 		}
 	}
 
@@ -114,6 +115,8 @@ func (dft *DFT) Polar() (*DFT, error) {
 // Complex converts the dft to frequency domain
 func (dft *DFT) Complex() (*DFT, error) {
 
+	var rex, imx, k, sr, si float64
+
 	len := dft.length()
 
 	freqRex := make(Sample, len)
@@ -121,11 +124,11 @@ func (dft *DFT) Complex() (*DFT, error) {
 
 	for i := 0; i < len; i++ {
 		for j := 0; j < len; j++ {
-			rex := float64(dft.rex[i])
-			imx := float64(dft.imx[i])
-			k := float64(i * j)
-			sr := math.Cos(pi2 * k / float64(len))
-			si := -math.Sin(pi2 * k / float64(len))
+			rex = float64(dft.rex[i])
+			imx = float64(dft.imx[i])
+			k = float64(i * j)
+			sr = math.Cos(pi2 * k / float64(len))
+			si = -math.Sin(pi2 * k / float64(len))
 
 			freqRex[i] += Signal(rex*sr - imx*si)
 			freqImx[i] += Signal(imx*si - imx*sr)
