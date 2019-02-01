@@ -10,6 +10,10 @@ import (
 // Sample a time sliced array of signals
 type Sample []Signal
 
+func NewSample(size int) Sample {
+	return make([]Signal, size)
+}
+
 // LoadSample loads a sample from a file
 func LoadSample(fileName string) (Sample, error) {
 
@@ -131,7 +135,7 @@ func (s Sample) FirstDifference() Sample {
 func (s Sample) DFT() (*DFT, error) {
 
 	size := len(s)
-	halfSize := (size / 2)
+	halfSize := size / 2
 
 	rex := make(Sample, halfSize)
 	imx := make(Sample, halfSize)

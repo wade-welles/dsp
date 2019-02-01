@@ -5,7 +5,11 @@ import "math"
 // Signal a single time slice value
 type Signal float64
 
-// Deviation returns the signal deviation
+func (s Signal) Value() float64 {
+	return float64(s)
+}
+
+// Deviation returns the standard deviation
 func (s Signal) Deviation() Signal {
 	return Signal(math.Sqrt(float64(s)))
 }
